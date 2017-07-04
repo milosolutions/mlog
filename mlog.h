@@ -36,7 +36,7 @@ public:
 private:
     Q_DISABLE_COPY(MLog)
     explicit MLog();
-    ~MiloLog();
+    ~MLog();
     static void messageHandler(QtMsgType type,
                                const QMessageLogContext &context,
                                const QString &message);
@@ -48,4 +48,4 @@ private:
     QString _currentLogPath;
 };
 
-MiloLog *logger();
+MLog *logger();

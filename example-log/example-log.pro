@@ -1,10 +1,10 @@
 QT = core
-CONFIG += c++14
+CONFIG += c++11
 
 # Just add this line to your project to include MiloLog!
 include(../mlog.pri)
 
-TARGET = mlog-example-log
+TARGET = example-log
 CONFIG += console
 CONFIG -= app_bundle
 
