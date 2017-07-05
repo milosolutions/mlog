@@ -101,3 +101,7 @@ We have a test Milo Sentry server for use in examples and testing:
 For "real" applications, please ask our server administrators to create 
 a new Sentry account for you.
 [Who to contact?](https://wiki.milosolutions.com/index.php/Who_to_contact%3F)
+
+# License # {#license}
+
+This project is licensed under the MIT License - see the LICENSE-MiloCodeDB.txt file for details
