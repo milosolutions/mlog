@@ -24,7 +24,7 @@ SOFTWARE.
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "milolog.h"
+#include "../mlog.h"
 
 class TestMiloLog : public QObject
 {
@@ -40,7 +40,7 @@ private slots:
 
 void TestMiloLog::initTestCase()
 {
-    Q_ASSERT(MiloLog::instance());
+    Q_ASSERT(MLog::instance());
     QCoreApplication::setApplicationName("MiloLog Test");
     QCoreApplication::setOrganizationName("Milo");
 }
@@ -91,4 +91,4 @@ void TestMiloLog::testInThreads()
 
 QTEST_MAIN(TestMiloLog)
 
-#include "tst_milolog.moc"
+//#include "tst_milolog.moc"

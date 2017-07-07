@@ -1,7 +1,7 @@
-include(../milolog.pri)
+include(../mlog.pri)
 
-exists(../../tests/testConfig.pri) {
-    include(../../tests/testConfig.pri)
+exists(../../../tests/testConfig.pri) {
+    include(../../../tests/testConfig.pri)
 } else {
     warning("File testConfig.pri was not included")
 }
@@ -14,4 +14,4 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES +=  tst_milolog.cpp
+SOURCES +=  tst_mlog.cpp
