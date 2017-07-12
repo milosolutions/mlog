@@ -6,14 +6,14 @@ Milo Code DB main ([online](https://qtdocs.milosolutions.com/milo-code-db/main/)
 
 # Description # {#description}
 
-MiloLog is the reference logger class for Milo projects.
+MLog is the reference logger class for Milo projects.
 
 # Usage # {#usage}
-MiloLog is intended to be used as a part of a main project. It should be enough
+MLog is intended to be used as a part of a main project. It should be enough
 to add:
 
 ~~~
-include(milolog.pri)
+include(mlog.pri)
 ~~~
 
 in to the project \*.pro file.
@@ -35,7 +35,7 @@ source file(s).
 
 # Sentry support # {#sentry}
 
-MiloLog can support [Sentry](https://docs.sentry.io), through included QRaven
+MLog can support [Sentry](https://docs.sentry.io), through included QRaven
 module. We are running a set of custom patches over QRaven library to make it
 easier to use (maybe we will send them upstream in the future). See Sentry class
 for more information.
@@ -43,7 +43,7 @@ for more information.
 ## Enabling and disabling Sentry support ## {#enable-disable-sentry}
 
 Sentry support is not enabled by default. Please follow instructions in
-milolog.pri to enable it, or look it up in our examples (example-sentry-basic
+mlog.pri to enable it, or look it up in our examples (example-sentry-basic
 and example-sentry-full).
 
 It is enough to add this line to your .pro file:
@@ -61,11 +61,11 @@ This disables the Sentry module completely - but thanks to the way it's build
 your in-code calls to sentry() logger will still compile. *You do not need to 
 guard sentry() calls with ifdefs!*.
 
-## Removing Sentry (I want MiloLog only!) ## {#remove-sentry}
+## Removing Sentry (I want MLog only!) ## {#remove-sentry}
 
 If you know that your project will not need Sentry at all, feel free to copy
-just MiloLog into your project. You can remove "sentry" directory, sentry.h
-and sentry.cpp. MiloLog itself will still compile and work.
+just MLog into your project. You can remove "sentry" directory, sentry.h
+and sentry.cpp. MLog itself will still compile and work.
 
 ## Callstack support in Sentry ## {#callstack-sentry}
 
@@ -83,10 +83,10 @@ To enable callstack support add linker flag `-rdynamic`
 
 # Examples # {#examples}
 
-MiloLog comes with 3 example applications:
-1. example-log - shows the simplest way to include and use MiloLog.
+MLog comes with 3 example applications:
+1. example-log - shows the simplest way to include and use MLog.
 2. example-sentry-basic - shows the simplest way to include Sentry.
-3. example-sentry-full - shows all supported usages of Sentry in MiloLog.
+3. example-sentry-full - shows all supported usages of Sentry in MLog.
 
 # Sentry account # {#sentry-account}
 
