@@ -194,6 +194,7 @@ void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
     const QString formatted(qFormatLogMessage(type, context, message));
     logger()->write(formatted + "\n");
     fprintf(stderr, "%s\n", qPrintable(formatted));
+    fflush(stderr);
 }
 
 /*!
