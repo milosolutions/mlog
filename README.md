@@ -1,8 +1,7 @@
-\anchor milodatabasemilolog
+\anchor MLog
 [TOC]
 
-Milo Code DB main ([online](https://qtdocs.milosolutions.com/milo-code-db/main/) 
-| [offline](\ref milodatabasemain))
+Milo Code DB main ([online](https://qtdocs.milosolutions.com/milo-code-db/main/) | [offline](\ref milodatabasemain))
 
 # Description # {#description}
 
