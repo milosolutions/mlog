@@ -26,10 +26,8 @@ SOFTWARE.
 
 #include "../mlog.h"
 
-class TestMiloLog : public QObject
+class TestMLog : public QObject
 {
-    Q_OBJECT
-
 private slots:
     void initTestCase();
     void cleanupTestCase();
@@ -38,20 +36,20 @@ private slots:
     void testInThreads();
 };
 
-void TestMiloLog::initTestCase()
+void TestMLog::initTestCase()
 {
     Q_ASSERT(MLog::instance());
     QCoreApplication::setApplicationName("MiloLog Test");
     QCoreApplication::setOrganizationName("Milo");
 }
 
-void TestMiloLog::cleanupTestCase()
+void TestMLog::cleanupTestCase()
 {
     QFile::remove(logger()->currentLogPath());
     QFile::remove(logger()->previousLogPath());
 }
 
-void TestMiloLog::testEnableLogToFile()
+void TestMLog::testEnableLogToFile()
 {
     logger()->enableLogToFile(QCoreApplication::applicationName());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
@@ -70,7 +68,7 @@ void TestMiloLog::testEnableLogToFile()
     
 }
 
-void TestMiloLog::testDisableLogToFile()
+void TestMLog::testDisableLogToFile()
 {
     logger()->disableLogToFile();
     QVERIFY(QFile::exists(logger()->currentLogPath()));
@@ -83,12 +81,12 @@ void TestMiloLog::testDisableLogToFile()
     QCOMPARE(fileSize1, fileSize2);
 }
 
-void TestMiloLog::testInThreads()
+void TestMLog::testInThreads()
 {
     qDebug() << "TODO: testinThreads";
     //TODO
 }
 
-QTEST_MAIN(TestMiloLog)
+QTEST_MAIN(TestMLog)
 
 //#include "tst_milolog.moc"
