@@ -28,6 +28,8 @@ SOFTWARE.
 
 class TestMLog : public QObject
 {
+  Q_OBJECT
+
 private slots:
     void initTestCase();
     void cleanupTestCase();
@@ -89,4 +91,4 @@ void TestMLog::testInThreads()
 
 QTEST_MAIN(TestMLog)
 
-//#include "tst_milolog.moc"
+#include "tst_mlog.moc"
