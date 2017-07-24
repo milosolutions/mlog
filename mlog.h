@@ -27,6 +27,7 @@ SOFTWARE.
 #include <QString>
 #include <QFile>
 #include <QLoggingCategory>
+#include <QMutex>
 
 Q_DECLARE_LOGGING_CATEGORY(core)
 
@@ -55,6 +56,7 @@ private:
     QFile _logFile;
     QString _previousLogPath;
     QString _currentLogPath;
+    QMutex _mutex;
 };
 
 MLog *logger();

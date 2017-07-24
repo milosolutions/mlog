@@ -14,4 +14,8 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES +=  tst_mlog.cpp
+SOURCES +=  tst_mlog.cpp \
+    loggingthread.cpp
+
+HEADERS += \
+    loggingthread.h

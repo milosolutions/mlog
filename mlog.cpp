@@ -204,6 +204,7 @@ void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
  */
 void MLog::write(const QString &message)
 {
+    QMutexLocker locker(&_mutex);
     if (_logFile.isOpen() && _logFile.isWritable()) {
         QTextStream logStream(&_logFile);
         logStream.setCodec("UTF-8");
