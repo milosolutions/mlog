@@ -45,7 +45,7 @@ private slots:
 void TestMLog::initTestCase()
 {
     Q_ASSERT(MLog::instance());
-    QCoreApplication::setApplicationName("MiloLog Test");
+    QCoreApplication::setApplicationName("MLog Test");
     QCoreApplication::setOrganizationName("Milo");
 }
 
