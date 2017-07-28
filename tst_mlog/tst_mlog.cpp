@@ -35,11 +35,13 @@ class TestMLog : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void cleanup();
     void testEnableLogToFile();
     void testDisableLogToFile();
     void testInThread();
     void testInMultipleThreads();
+
+private:
+    void clean();
 };
 
 void TestMLog::initTestCase()
@@ -51,10 +53,10 @@ void TestMLog::initTestCase()
 
 void TestMLog::cleanupTestCase()
 {
-    cleanup();
+    clean();
 }
 
-void TestMLog::cleanup()
+void TestMLog::clean()
 {
     QFile::remove(logger()->currentLogPath());
     QFile::remove(logger()->previousLogPath());
@@ -65,7 +67,7 @@ void TestMLog::testEnableLogToFile()
     logger()->enableLogToFile(QCoreApplication::applicationName());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
     QVERIFY(!QFile::exists(logger()->previousLogPath()));
-    cleanup();
+    clean();
     logger()->enableLogToFile("Test log");
     QVERIFY(QFile::exists(logger()->currentLogPath()));
     QVERIFY(logger()->currentLogPath() != logger()->previousLogPath());
@@ -88,9 +90,11 @@ void TestMLog::testDisableLogToFile()
     quint64 fileSize1 = logFile.size();
     qDebug() << "Test log file size: " << fileSize1;
     quint64 fileSize2 = logFile.size();
+    clean();
     logger()->enableLogToFile(QCoreApplication::applicationName());
     qDebug() << "Test log file size: " << fileSize2;
     QCOMPARE(fileSize1, fileSize2);
+    clean();
 }
 
 void TestMLog::testInThread()
@@ -108,6 +112,7 @@ void TestMLog::testInThread()
     quint64 fileSize2 = logFile.size();
 
     QVERIFY(fileSize2 > fileSize1);
+    clean();
 }
 
 void TestMLog::testInMultipleThreads()
