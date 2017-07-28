@@ -58,6 +58,7 @@ void TestMLog::cleanupTestCase()
 
 void TestMLog::clean()
 {
+	logger()->disableLogToFile();
     QFile::remove(logger()->currentLogPath());
     QFile::remove(logger()->previousLogPath());
 }
