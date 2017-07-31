@@ -65,7 +65,8 @@ Q_LOGGING_CATEGORY(coreLogger, "core.logger")
  */
 
 MLog *MLog::_instance = nullptr;
-bool MLog::_logToFileEnabled = false;
+bool MLog::_logToFile = false;
+bool MLog::_logToConsole = true;
 
 /*!
  * Installs Qt message handler. Sets up the default message pattern.
@@ -150,7 +151,7 @@ void MLog::enableLogToFile(const QString &appName)
         qCWarning(coreLogger) << "Could not open log file for writing!";
     }
     else
-      _logToFileEnabled = true;
+      _logToFile = true;
 }
 
 /*!
@@ -160,7 +161,25 @@ void MLog::enableLogToFile(const QString &appName)
 void MLog::disableLogToFile()
 {
     _logFile.close();
-    _logToFileEnabled = false;
+    _logToFile = false;
+}
+
+/*!
+ * Enables writing logs into a file. Log messages will continue to be printed
+ * into the console (cerr).
+ */
+void MLog::enableLogToConsole()
+{
+    _logToConsole = true;
+}
+
+/*!
+ * Disables writing logs into a console. Log messages will continue to be printed
+ * into the background (cerr).
+ */
+void MLog::disableLogToConsole()
+{
+    _logToConsole = false;
 }
 
 /*!
@@ -200,8 +219,10 @@ void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &message)
 {
     const QString formatted(qFormatLogMessage(type, context, message));
-    if (_logToFileEnabled)
+    if (_logToFile)
       logger()->write(formatted + "\n");
+    if (!_logToConsole)
+      return;
 #ifdef ANDROID
     android_LogPriority priority = ANDROID_LOG_DEBUG;
     switch (type) {

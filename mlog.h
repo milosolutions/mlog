@@ -40,6 +40,9 @@ public:
     void enableLogToFile(const QString &appName);
     void disableLogToFile();
 
+    void enableLogToConsole();
+    void disableLogToConsole();
+
     QString previousLogPath() const;
     QString currentLogPath() const;
 
@@ -56,7 +59,8 @@ private:
     QFile _logFile;
     QString _previousLogPath;
     QString _currentLogPath;
-    static bool _logToFileEnabled;
+    static bool _logToFile;
+    static bool _logToConsole;
     QMutex _mutex;
 };
 
