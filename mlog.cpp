@@ -31,6 +31,10 @@ SOFTWARE.
 #include <QDir>
 #include <QtDebug>
 
+#ifdef ANDROID
+#include "android/log.h"
+#endif
+
 Q_LOGGING_CATEGORY(coreLogger, "core.logger")
 
 /*!
@@ -61,6 +65,7 @@ Q_LOGGING_CATEGORY(coreLogger, "core.logger")
  */
 
 MLog *MLog::_instance = nullptr;
+bool MLog::_logToFileEnabled = false;
 
 /*!
  * Installs Qt message handler. Sets up the default message pattern.
@@ -144,6 +149,8 @@ void MLog::enableLogToFile(const QString &appName)
     if (!_logFile.open(QFile::WriteOnly | QFile::Text)) {
         qCWarning(coreLogger) << "Could not open log file for writing!";
     }
+    else
+      _logToFileEnabled = true;
 }
 
 /*!
@@ -153,6 +160,7 @@ void MLog::enableLogToFile(const QString &appName)
 void MLog::disableLogToFile()
 {
     _logFile.close();
+    _logToFileEnabled = false;
 }
 
 /*!
@@ -192,9 +200,22 @@ void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &message)
 {
     const QString formatted(qFormatLogMessage(type, context, message));
-    logger()->write(formatted + "\n");
+    if (_logToFileEnabled)
+      logger()->write(formatted + "\n");
+#ifdef ANDROID
+    android_LogPriority priority = ANDROID_LOG_DEBUG;
+    switch (type) {
+        case QtWarningMsg: priority = ANDROID_LOG_WARN; break;
+        case QtCriticalMsg: priority = ANDROID_LOG_ERROR; break;
+        case QtFatalMsg: priority = ANDROID_LOG_FATAL; break;
+        case QtInfoMsg: priority = ANDROID_LOG_INFO; break;
+        default: priority = ANDROID_LOG_DEBUG; break;
+    };
+    __android_log_print(priority, "Qt", "%s", qPrintable(formatted));
+#else
     fprintf(stderr, "%s\n", qPrintable(formatted));
     fflush(stderr);
+#endif
 }
 
 /*!

@@ -56,6 +56,7 @@ private:
     QFile _logFile;
     QString _previousLogPath;
     QString _currentLogPath;
+    static bool _logToFileEnabled;
     QMutex _mutex;
 };
 
