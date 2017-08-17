@@ -6,7 +6,7 @@
 DOXYFILE_ENCODING = UTF-8
 
 PROJECT_NAME = MLog
-PROJECT_NUMBER = 0.0.1
+PROJECT_NUMBER = 1.0
 PROJECT_BRIEF = "MLog - example file logger for use in Milo projects"
 #PROJECT_LOGO = mlog.png
 
