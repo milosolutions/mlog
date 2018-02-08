@@ -79,8 +79,10 @@ bool MLog::_logToConsole = true;
  */
 MLog::MLog()
 {
-    qSetMessagePattern("%{time}|%{type}%{if-category}|%{category}%{endif}|%{function}: "
-                       "%{message}");
+    // use backslashes between '%' and '{' to avoid shadowing this placeholders with
+    // similar placeholders from wizard.json file during the Qt Creator wizard creation
+    qSetMessagePattern("%\{time}|%\{type}%\{if-category}|%\{category}%\{endif}|%\{function}: "
+                       "%\{message}");
     qInstallMessageHandler(&messageHandler);
 }
 

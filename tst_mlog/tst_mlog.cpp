@@ -120,7 +120,7 @@ void TestMLog::testLogToConsole()
 
     QVERIFY(fileSize1 == fileSize2);
 
-
+    clean();
 }
 
 void TestMLog::testInThread()
