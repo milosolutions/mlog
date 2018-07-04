@@ -28,6 +28,7 @@ SOFTWARE.
 #include <QFile>
 #include <QLoggingCategory>
 #include <QMutex>
+#include <QDir>
 
 Q_DECLARE_LOGGING_CATEGORY(core)
 
@@ -36,9 +37,15 @@ class QMessageLogContext;
 class MLog
 {
 public:
+    enum class RotationType{
+        Consequent, // current -> previous -> previous-1 ...
+        DateTime // <appName>-<datetime>.log
+    };
     static MLog *instance();
     void enableLogToFile(const QString &appName);
     void disableLogToFile();
+
+    void setLogRotation(RotationType type, int maxLogs);
 
     void enableLogToConsole();
     void disableLogToConsole();
@@ -62,6 +69,15 @@ private:
     static bool _logToFile;
     static bool _logToConsole;
     QMutex _mutex;
+
+    int _maxLogs = 2;
+    RotationType _rotationType = RotationType::Consequent;
+    QString _dateTimeFormat = "yyyy-MM-dd_HH-mm-ss";
+    QString _fileExt = ".log";
+
+    void rotateLogFiles(const QString& appName);
+    QString findPreviousLogPath(const QString &logFileDir, const QString &appName);
+    void removeLastLog(const QString &appName, const QDir &logsDir);
 };
 
 MLog *logger();
