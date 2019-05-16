@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-
 #pragma once
 
 #include <QString>
@@ -71,16 +70,15 @@ private:
     void write(const QString &message);
     bool isMessageAllowed(const QtMsgType qtLevel) const;
 
-    static MLog *_instance;
-
+    bool _logToFile = false;
+    bool _logToConsole = true;
     QFile _logFile;
     QString _previousLogPath;
     QString _currentLogPath;
     QMutex _mutex;
     LogLevel _logLevel = DebugLog;
 
-    static bool _logToFile;
-    static bool _logToConsole;
+    static MLog *_instance;
 };
 
 MLog *logger();

@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-
 #include "mlog.h"
 
 #include <QString>
@@ -65,8 +64,6 @@ Q_LOGGING_CATEGORY(coreLogger, "core.logger")
  */
 
 MLog *MLog::_instance = nullptr;
-bool MLog::_logToFile = false;
-bool MLog::_logToConsole = true;
 
 /*!
  * Installs Qt message handler. Sets up the default message pattern.
@@ -109,21 +106,21 @@ MLog *MLog::instance()
 }
 
 /*!
- * Creates a log file based on \a appName (application name) and opens it for
- * writing. All future uses of qDebug, qCDebug, qInfo, etc. will be printed to
- * the console and written into that file.
+ * Creates a log file based on \a appName (application name) in \a directory and
+ * opens it for writing. All future uses of qDebug, qCDebug, qInfo, etc. will be
+ * printed to the console and written into that file.
  *
  * When this method is called, MLog saves log file created earlier (during
  * previous run of the application, or when enableLogToFile() was last run)
  * to previousLogPath().
  *
- * Log file path can be read using currentLogPath(). Previous log file is available
- * at previousLogPath().
+ * Log file path can be read using currentLogPath(). Previous log file is
+ * available at previousLogPath().
  *
  * If you want to disable writing log to file while the application is still
  * running, use disableLogToFile().
  *
- * If you do not have logs directory it will be created.
+ * If you do not have logs \a directory it will be created.
  */
 void MLog::enableLogToFile(const QString &appName, const QString &directory)
 {
@@ -237,14 +234,17 @@ MLog::LogLevel MLog::logLevel() const
 void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &message)
 {
-    if (logger()->isMessageAllowed(type) == false)
+    MLog *log = logger();
+    if (log->isMessageAllowed(type) == false)
         return;
 
     const QString formatted(qFormatLogMessage(type, context, message));
-    if (_logToFile)
-      logger()->write(formatted + "\n");
-    if (!_logToConsole)
+    if (log->_logToFile)
+      log->write(formatted + "\n");
+
+    if (log->_logToConsole == false)
       return;
+
 #ifdef ANDROID
     android_LogPriority priority = ANDROID_LOG_DEBUG;
     switch (type) {
