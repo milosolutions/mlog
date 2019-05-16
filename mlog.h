@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (C) 2017 Milo Solutions
+Copyright (C) 2019 Milo Solutions
 Contact: https://www.milosolutions.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,9 +25,10 @@ SOFTWARE.
 #pragma once
 
 #include <QString>
-#include <QFile>
-#include <QLoggingCategory>
 #include <QMutex>
+#include <QFile>
+#include <QStandardPaths>
+#include <QLoggingCategory>
 
 Q_DECLARE_LOGGING_CATEGORY(core)
 
@@ -36,8 +37,19 @@ class QMessageLogContext;
 class MLog
 {
 public:
+    enum LogLevel {
+        NoLog,
+        FatalLog,
+        CriticalLog,
+        WarningLog,
+        InfoLog,
+        DebugLog
+    };
+
     static MLog *instance();
-    void enableLogToFile(const QString &appName);
+    void enableLogToFile(const QString &appName,
+                         const QString &directory = QStandardPaths::writableLocation(
+                             QStandardPaths::DocumentsLocation));
     void disableLogToFile();
 
     void enableLogToConsole();
@@ -45,6 +57,9 @@ public:
 
     QString previousLogPath() const;
     QString currentLogPath() const;
+
+    void setLogLevel(const LogLevel level);
+    LogLevel logLevel() const;
 
 private:
     Q_DISABLE_COPY(MLog)
@@ -54,14 +69,18 @@ private:
                                const QMessageLogContext &context,
                                const QString &message);
     void write(const QString &message);
+    bool isMessageAllowed(const QtMsgType qtLevel) const;
 
     static MLog *_instance;
+
     QFile _logFile;
     QString _previousLogPath;
     QString _currentLogPath;
+    QMutex _mutex;
+    LogLevel _logLevel = DebugLog;
+
     static bool _logToFile;
     static bool _logToConsole;
-    QMutex _mutex;
 };
 
 MLog *logger();
