@@ -88,10 +88,10 @@ private:
     QString _currentLogPath;
     QMutex _mutex;
     LogLevel _logLevel = DebugLog;
-    int _maxLogs = 2;
     RotationType _rotationType = RotationType::Consequent;
-    QString _dateTimeFormat = "yyyy-MM-dd_HH-mm-ss";
-    QString _fileExt = ".log";
+    int _maxLogs = 2;
+    const QString _dateTimeFormat = QStringLiteral("yyyy-MM-dd_HH-mm-ss");
+    const QString _fileExt = QStringLiteral(".log");
 
     static MLog *_instance;
 };

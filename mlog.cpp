@@ -139,13 +139,13 @@ void MLog::enableLogToFile(const QString &appName, const QString &directory)
         }
     }
 
-    _previousLogPath = findPreviousLogPath(logFilePath,appName);
+    _previousLogPath = findPreviousLogPath(directory, appName);
     if (_rotationType == MLog::RotationType::Consequent) {
-        _currentLogPath = logFilePath + '/' + appName + "-current" + _fileExt;
+        _currentLogPath = directory + '/' + appName + "-current" + _fileExt;
     }
     else if (_rotationType == MLog::RotationType::DateTime) {
         const auto currentDate = QDateTime::currentDateTime().toString(_dateTimeFormat);
-        _currentLogPath = logFilePath + '/' + appName + "-" + currentDate + _fileExt;
+        _currentLogPath = directory + '/' + appName + "-" + currentDate + _fileExt;
     }
 
     rotateLogFiles(appName);
