@@ -224,11 +224,24 @@ QString MLog::currentLogPath() const
     return _currentLogPath;
 }
 
+/*!
+ * Sets log level to \a level. Messages with value higher than \a level will not
+ * be printed.
+ *
+ * For example, if \a level is set to MLog::WarningLog, MLog will not print
+ * messages declared using qDebug() and qInfo(), but it will print qWarning(),
+ * qCritical() and qFatal() messages.
+ */
 void MLog::setLogLevel(const MLog::LogLevel level)
 {
     _logLevel = level;
 }
 
+/*!
+ * Returns current log level.
+ *
+ * Default value is MLog::DebugLog.
+ */
 MLog::LogLevel MLog::logLevel() const
 {
     return _logLevel;
@@ -339,16 +352,16 @@ void MLog::rotateLogFiles(const QString &appName)
 {
     const QString logFilePath(QStandardPaths::writableLocation(
                                   QStandardPaths::DocumentsLocation));
-    QDir logsDir(logFilePath);
+    const QDir logsDir(logFilePath);
     const QStringList logFilter(appName + "-*" + _fileExt);
-
     const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
 
     if (_rotationType == MLog::RotationType::Consequent) {
-        const QRegularExpression  expr("("+appName+"-previous-)([1-9][0-9]*)" + _fileExt);
+        const QRegularExpression expr("("+appName+"-previous-)([1-9][0-9]*)"
+                                      + _fileExt);
 
         // replace names for all previous files
-        for(auto file : qAsConst(files)) {
+        for(const auto &file : qAsConst(files)) {
             const auto match = expr.match(file);
             if (match.hasMatch()) {
                 const auto prefix = match.captured(1);
@@ -362,6 +375,7 @@ void MLog::rotateLogFiles(const QString &appName)
                 QFile::rename(oldFilePath, newFilePath);
             }
         }
+
         const QString newPrev = logFilePath + '/' + appName + "-previous-1" + _fileExt;
         QFile::rename(_previousLogPath, newPrev);
     }
@@ -380,16 +394,15 @@ QString MLog::findPreviousLogPath(const QString &logFileDir, const QString &appN
 {
     if (_rotationType == MLog::RotationType::Consequent) {
         return logFileDir + '/' + appName + "-previous" + _fileExt;
-    }
-    else if (_rotationType == MLog::RotationType::DateTime) {
+    } else if (_rotationType == MLog::RotationType::DateTime) {
         const QDir logsDir(logFileDir);
         const QStringList logFilter(appName + "-*" + _fileExt);
         const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
+        const QRegularExpression expr(
+            "(" + appName + "-)(\\d\\d\\d\\d-\\d\\d-\\d\\d_\\d\\d-\\d\\d-\\d\\d)"
+            + _fileExt);
 
-        const QRegularExpression expr("(" + appName + "-)"
-                      "(\\d\\d\\d\\d-\\d\\d-\\d\\d_\\d\\d-\\d\\d-\\d\\d)" + _fileExt);
-
-        for(auto file : qAsConst(files)) {
+        for(const auto &file : qAsConst(files)) {
             const auto match = expr.match(file);
             if (match.hasMatch())
                 return logFileDir + '/' + file;
@@ -403,16 +416,17 @@ QString MLog::findPreviousLogPath(const QString &logFileDir, const QString &appN
  */
 void MLog::removeLastLog(const QString &appName, const QDir &logsDir)
 {
-    QStringList logFilter(appName + "-*" + _fileExt);
+    const QStringList logFilter(appName + "-*" + _fileExt);
     const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
     const auto logFilePath = logsDir.absolutePath();
     QString lastLog;
 
     if (_rotationType == MLog::RotationType::Consequent) {
-        const QRegularExpression expr("(" + appName + "-previous-)([1-9][0-9]*)" + _fileExt);
+        const QRegularExpression expr("(" + appName + "-previous-)([1-9][0-9]*)"
+                                      + _fileExt);
         int max = 0;
 
-        for(auto file : qAsConst(files)) {
+        for(const auto &file : qAsConst(files)) {
             const auto match = expr.match(file);
             if (match.hasMatch()) {
                 const int index = match.captured(2).toInt();
@@ -423,14 +437,13 @@ void MLog::removeLastLog(const QString &appName, const QDir &logsDir)
                 }
             }
         }
-    }
-    else if (_rotationType == MLog::RotationType::DateTime) {
+    } else if (_rotationType == MLog::RotationType::DateTime) {
         const QRegularExpression expr("(" + appName + "-)"
                       "(\\d\\d\\d\\d-\\d\\d-\\d\\d_\\d\\d-\\d\\d-\\d\\d)"
                                 + _fileExt);
         QDateTime oldest = QDateTime::currentDateTime();
 
-        for(auto file : qAsConst(files)) {
+        for(const auto &file : qAsConst(files)) {
             const auto match = expr.match(file);
             if (match.hasMatch()) {
                 const auto index = QDateTime::fromString(
@@ -443,5 +456,6 @@ void MLog::removeLastLog(const QString &appName, const QDir &logsDir)
             }
         }
     }
+
     QFile::remove(logFilePath + '/' + lastLog);
 }

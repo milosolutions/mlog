@@ -37,18 +37,29 @@ class QMessageLogContext;
 class MLog
 {
 public:
+    /*!
+     * Determines which messages should be printed. See setLogLevel() for more
+     * information.
+     */
     enum LogLevel {
-        NoLog,
-        FatalLog,
-        CriticalLog,
-        WarningLog,
-        InfoLog,
-        DebugLog
+        NoLog, //! No log messages will be printed
+        FatalLog, //! Only qFatal() messages will be printed
+        CriticalLog, //! Only qFatal() and qCritical() messages will be printed
+        WarningLog, //! Will print qFatal(), qCritical() and qWarning() messages
+        InfoLog, //! Will print qFatal(), qCritical(), qWarning() and qInfo() messages
+        DebugLog //! Will print all messages
     };
 
+    /*!
+     * Log file rotation. MLog saves log history from several runs of the
+     * application.
+     *
+     * This is useful when debugging, user can run the application twice and
+     * easily compare the logs from both runs.
+     */
     enum class RotationType{
-        Consequent, // current -> previous -> previous-1 ...
-        DateTime // <appName>-<datetime>.log
+        Consequent, //! current -> previous -> previous-1 ...
+        DateTime //! <appName>-<datetime>.log
     };
     
     static MLog *instance();
