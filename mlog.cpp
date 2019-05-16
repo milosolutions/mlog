@@ -29,6 +29,8 @@ SOFTWARE.
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QDir>
+#include <QRegularExpression>
+#include <QDateTime>
 
 #ifdef ANDROID
 #include "android/log.h"
@@ -137,14 +139,16 @@ void MLog::enableLogToFile(const QString &appName, const QString &directory)
         }
     }
 
-    _previousLogPath = directory + '/' + appName + "-previous.log";
-    _currentLogPath = directory + '/' + appName + "-current.log";
-
-    // Move old log (if present) to appName-previous.log
-    if (QFileInfo(_currentLogPath).exists()) {
-        QFile::remove(_previousLogPath);
-        QFile::rename(_currentLogPath, _previousLogPath);
+    _previousLogPath = findPreviousLogPath(logFilePath,appName);
+    if (_rotationType == MLog::RotationType::Consequent) {
+        _currentLogPath = logFilePath + '/' + appName + "-current" + _fileExt;
     }
+    else if (_rotationType == MLog::RotationType::DateTime) {
+        const auto currentDate = QDateTime::currentDateTime().toString(_dateTimeFormat);
+        _currentLogPath = logFilePath + '/' + appName + "-" + currentDate + _fileExt;
+    }
+
+    rotateLogFiles(appName);
 
     // Open appName-current.log and write init message
     _logFile.setFileName(_currentLogPath);
@@ -165,6 +169,17 @@ void MLog::disableLogToFile()
 {
     _logFile.close();
     _logToFile = false;
+}
+
+/*!
+ * Sets log rotation to \a type.
+ * \a maxLogs determines how many logs can be in directory
+ * in format <appName>-<order_identifier>.log
+ */
+void MLog::setLogRotation(MLog::RotationType type, int maxLogs)
+{
+    _rotationType = type;
+    _maxLogs = maxLogs;
 }
 
 /*!
@@ -262,7 +277,7 @@ void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
 }
 
 /*!
- * Wrties \a message into current log file.
+ * Writes \a message into current log file.
  *
  * This function first checks whether log file is open and writable.
  */
@@ -310,4 +325,123 @@ bool MLog::isMessageAllowed(const QtMsgType qtLevel) const
 MLog *logger()
 {
     return MLog::instance();
+}
+
+/*!
+ * Rotates logFiles beginning with \a appName.
+ *
+ * This function changes file names when MLog::RotationType is Consequent.
+ * It also deletes oldest log file if maxLogs is exceeded.
+ *
+ * \sa setLogRotation(RotationType type, int maxLogs)
+ */
+void MLog::rotateLogFiles(const QString &appName)
+{
+    const QString logFilePath(QStandardPaths::writableLocation(
+                                  QStandardPaths::DocumentsLocation));
+    QDir logsDir(logFilePath);
+    const QStringList logFilter(appName + "-*" + _fileExt);
+
+    const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
+
+    if (_rotationType == MLog::RotationType::Consequent) {
+        const QRegularExpression  expr("("+appName+"-previous-)([1-9][0-9]*)" + _fileExt);
+
+        // replace names for all previous files
+        for(auto file : qAsConst(files)) {
+            const auto match = expr.match(file);
+            if (match.hasMatch()) {
+                const auto prefix = match.captured(1);
+                int index = match.captured(2).toInt();
+                ++index;
+
+                QString newFilePath = prefix + QString::number(index) + _fileExt;
+                const auto oldFilePath = logsDir.absoluteFilePath(file);
+                newFilePath = logsDir.absoluteFilePath(newFilePath);
+
+                QFile::rename(oldFilePath, newFilePath);
+            }
+        }
+        const QString newPrev = logFilePath + '/' + appName + "-previous-1" + _fileExt;
+        QFile::rename(_previousLogPath, newPrev);
+    }
+
+    if (files.size()+1 > _maxLogs)
+        removeLastLog(appName, logsDir);
+
+    if (QFileInfo(_currentLogPath).exists())
+        QFile::rename(_currentLogPath, _previousLogPath);
+}
+
+/*!
+ * Finds previous log file path in \a logFileDir with \a appName.
+ */
+QString MLog::findPreviousLogPath(const QString &logFileDir, const QString &appName)
+{
+    if (_rotationType == MLog::RotationType::Consequent) {
+        return logFileDir + '/' + appName + "-previous" + _fileExt;
+    }
+    else if (_rotationType == MLog::RotationType::DateTime) {
+        const QDir logsDir(logFileDir);
+        const QStringList logFilter(appName + "-*" + _fileExt);
+        const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
+
+        const QRegularExpression expr("(" + appName + "-)"
+                      "(\\d\\d\\d\\d-\\d\\d-\\d\\d_\\d\\d-\\d\\d-\\d\\d)" + _fileExt);
+
+        for(auto file : qAsConst(files)) {
+            const auto match = expr.match(file);
+            if (match.hasMatch())
+                return logFileDir + '/' + file;
+        }
+    }
+    return QString();
+}
+
+/*!
+ * Removes last log file matching set RotationType in \a logsDir with \a appName.
+ */
+void MLog::removeLastLog(const QString &appName, const QDir &logsDir)
+{
+    QStringList logFilter(appName + "-*" + _fileExt);
+    const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
+    const auto logFilePath = logsDir.absolutePath();
+    QString lastLog;
+
+    if (_rotationType == MLog::RotationType::Consequent) {
+        const QRegularExpression expr("(" + appName + "-previous-)([1-9][0-9]*)" + _fileExt);
+        int max = 0;
+
+        for(auto file : qAsConst(files)) {
+            const auto match = expr.match(file);
+            if (match.hasMatch()) {
+                const int index = match.captured(2).toInt();
+
+                if (index > max) {
+                    max = index;
+                    lastLog = file;
+                }
+            }
+        }
+    }
+    else if (_rotationType == MLog::RotationType::DateTime) {
+        const QRegularExpression expr("(" + appName + "-)"
+                      "(\\d\\d\\d\\d-\\d\\d-\\d\\d_\\d\\d-\\d\\d-\\d\\d)"
+                                + _fileExt);
+        QDateTime oldest = QDateTime::currentDateTime();
+
+        for(auto file : qAsConst(files)) {
+            const auto match = expr.match(file);
+            if (match.hasMatch()) {
+                const auto index = QDateTime::fromString(
+                            match.captured(2), _dateTimeFormat);
+
+                if (index < oldest) {
+                    oldest = index;
+                    lastLog = file;
+                }
+            }
+        }
+    }
+    QFile::remove(logFilePath + '/' + lastLog);
 }

@@ -28,6 +28,7 @@ SOFTWARE.
 #include <QFile>
 #include <QStandardPaths>
 #include <QLoggingCategory>
+#include <QDir>
 
 Q_DECLARE_LOGGING_CATEGORY(core)
 
@@ -45,11 +46,18 @@ public:
         DebugLog
     };
 
+    enum class RotationType{
+        Consequent, // current -> previous -> previous-1 ...
+        DateTime // <appName>-<datetime>.log
+    };
+    
     static MLog *instance();
     void enableLogToFile(const QString &appName,
                          const QString &directory = QStandardPaths::writableLocation(
                              QStandardPaths::DocumentsLocation));
     void disableLogToFile();
+
+    void setLogRotation(RotationType type, int maxLogs);
 
     void enableLogToConsole();
     void disableLogToConsole();
@@ -69,6 +77,9 @@ private:
                                const QString &message);
     void write(const QString &message);
     bool isMessageAllowed(const QtMsgType qtLevel) const;
+    void rotateLogFiles(const QString& appName);
+    QString findPreviousLogPath(const QString &logFileDir, const QString &appName);
+    void removeLastLog(const QString &appName, const QDir &logsDir);
 
     bool _logToFile = false;
     bool _logToConsole = true;
@@ -77,6 +88,10 @@ private:
     QString _currentLogPath;
     QMutex _mutex;
     LogLevel _logLevel = DebugLog;
+    int _maxLogs = 2;
+    RotationType _rotationType = RotationType::Consequent;
+    QString _dateTimeFormat = "yyyy-MM-dd_HH-mm-ss";
+    QString _fileExt = ".log";
 
     static MLog *_instance;
 };
