@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (C) 2017 Milo Solutions
+Copyright (C) 2019 Milo Solutions
 Contact: https://www.milosolutions.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,8 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-
-
 #include <QCoreApplication>
 #include <QLoggingCategory>
 #include <QDebug>
@@ -30,6 +28,7 @@ SOFTWARE.
 
 #include "exampleclass.h"
 #include "mlog.h"
+
 Q_LOGGING_CATEGORY(coreMain, "core.main")
 
 //! Example use of MiloLog class
@@ -41,14 +40,22 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     a.setApplicationName("Basic example logger app");
 
+    // Logger will log at most Info messages (qInfo, qCInfo).
+    logger()->setLogLevel(MLog::InfoLog);
+
     // If you want to enable pushing all logs to a file (apart from console),
     // use enableLogToFile()
     logger()->enableLogToFile(a.applicationName());
 
-    qCDebug(coreMain) << "Logger successfully created."
+    qCInfo(coreMain) << "Logger successfully created."
                       << "\n\tApplication name is:" << a.applicationName()
                       << "\n\tPrevious log path:" << logger()->previousLogPath()
                       << "\n\tCurrent log path:" << logger()->currentLogPath();
+
+    qCWarning(coreMain) << "This is a warning!";
+    qCCritical(coreMain) << "This is a critical message!";
+    qCDebug(coreMain) << "This is a debug message, it won't be printed because"
+                      << "log level is set to MLog::InfoLog";
 
     // Class test
     ExampleClass cls;
@@ -56,6 +63,6 @@ int main(int argc, char *argv[])
     // (see logSomething() body)
     cls.logSomething();
 
-    QTimer::singleShot(1000, &a, &QCoreApplication::quit);
+    QTimer::singleShot(200, &a, &QCoreApplication::quit);
     return a.exec();
 }

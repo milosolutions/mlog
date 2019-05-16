@@ -21,14 +21,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-
 #include "mlog.h"
 
 #include <QString>
 #include <QTextStream>
 #include <QStandardPaths>
+#include <QCoreApplication>
 #include <QFileInfo>
-#include <QtDebug>
+#include <QDir>
 #include <QRegularExpression>
 #include <QDateTime>
 
@@ -66,8 +66,6 @@ Q_LOGGING_CATEGORY(coreLogger, "core.logger")
  */
 
 MLog *MLog::_instance = nullptr;
-bool MLog::_logToFile = false;
-bool MLog::_logToConsole = true;
 
 /*!
  * Installs Qt message handler. Sets up the default message pattern.
@@ -87,6 +85,9 @@ MLog::MLog()
     qInstallMessageHandler(&messageHandler);
 }
 
+/*!
+ * Just a destructor. Does not do anything interesting.
+ */
 MLog::~MLog()
 {
 }
@@ -107,38 +108,36 @@ MLog *MLog::instance()
 }
 
 /*!
- * Creates a log file based on \a appName (application name) and opens it for
- * writing. All future uses of qDebug, qCDebug, qInfo, etc. will be printed to
- * the console and written into that file.
+ * Creates a log file based on \a appName (application name) in \a directory and
+ * opens it for writing. All future uses of qDebug, qCDebug, qInfo, etc. will be
+ * printed to the console and written into that file.
  *
  * When this method is called, MLog saves log file created earlier (during
  * previous run of the application, or when enableLogToFile() was last run)
  * to previousLogPath().
  *
- * Log file path can be read using currentLogPath(). Previous log file is available
- * at previousLogPath().
+ * Log file path can be read using currentLogPath(). Previous log file is
+ * available at previousLogPath().
  *
  * If you want to disable writing log to file while the application is still
  * running, use disableLogToFile().
  *
- * If you do not have logs directory it will be created.
+ * If you do not have logs \a directory it will be created.
  */
-void MLog::enableLogToFile(const QString &appName)
+void MLog::enableLogToFile(const QString &appName, const QString &directory)
 {
-    // Prepare the log file
-    const QString logFilePath(QStandardPaths::writableLocation(
-                                  QStandardPaths::DocumentsLocation));
-
     // Check if logs directory exists and if does not exist try to create it
-    QDir logsDir(logFilePath);
+    QDir logsDir(directory);
     if (!logsDir.exists()) {
         qCDebug(coreLogger) << "Creating logs directory";
-        if (logsDir.mkpath(logFilePath))
+        if (logsDir.mkpath(directory)) {
             qCDebug(coreLogger) << "Directory was created successfully";
-        else
-            qCWarning(coreLogger) << "Could not create logs directory!";
+        } else {
+            qCCritical(coreLogger) << "Could not create logs directory!";
+            QCoreApplication::instance()->exit(1);
+            return;
+        }
     }
-
 
     _previousLogPath = findPreviousLogPath(logFilePath,appName);
     if (_rotationType == MLog::RotationType::Consequent) {
@@ -154,10 +153,12 @@ void MLog::enableLogToFile(const QString &appName)
     // Open appName-current.log and write init message
     _logFile.setFileName(_currentLogPath);
     if (!_logFile.open(QFile::WriteOnly | QFile::Text)) {
-        qCWarning(coreLogger) << "Could not open log file for writing!";
-    }
-    else
+        qCCritical(coreLogger) << "Could not open log file for writing!";
+        QCoreApplication::instance()->exit(2);
+        return;
+    } else {
       _logToFile = true;
+    }
 }
 
 /*!
@@ -223,23 +224,42 @@ QString MLog::currentLogPath() const
     return _currentLogPath;
 }
 
+void MLog::setLogLevel(const MLog::LogLevel level)
+{
+    _logLevel = level;
+}
+
+MLog::LogLevel MLog::logLevel() const
+{
+    return _logLevel;
+}
+
 /*!
  * Standard Qt messageHandler. MLog only adds the option to write to file
- * (use enableLogToFile() to, well, enable writing logs to a file).
+ * (use enableLogToFile() to, well, enable writing logs to a file) and log level
+ * controls (see setLogLevel() and isMessageAllowed() for more details).
  *
  * \a type, \a context, \a message have exactly the same meaning as in Qt's
  * built-in message handler and behave the same.
  *
  * MLog respects categorized logging settings (qCDebug() and friends).
+ *
+ * \sa enableLogToFile, setLogLevel, isMessageAllowed
  */
 void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
                           const QString &message)
 {
+    MLog *log = logger();
+    if (log->isMessageAllowed(type) == false)
+        return;
+
     const QString formatted(qFormatLogMessage(type, context, message));
-    if (_logToFile)
-      logger()->write(formatted + "\n");
-    if (!_logToConsole)
+    if (log->_logToFile)
+      log->write(formatted + "\n");
+
+    if (log->_logToConsole == false)
       return;
+
 #ifdef ANDROID
     android_LogPriority priority = ANDROID_LOG_DEBUG;
     switch (type) {
@@ -269,6 +289,33 @@ void MLog::write(const QString &message)
         logStream.setCodec("UTF-8");
         logStream << message;
     }
+}
+
+/*!
+ * Returns true if log level \a qtLevel is within logger logging level set
+ * in setLogLevel().
+ *
+ * \sa setLogLevel
+ */
+bool MLog::isMessageAllowed(const QtMsgType qtLevel) const
+{
+    if (_logLevel == NoLog)
+        return false;
+
+    switch (qtLevel) {
+    case QtDebugMsg:
+        return (_logLevel >= DebugLog);
+    case QtInfoMsg:
+        return (_logLevel >= InfoLog);
+    case QtWarningMsg:
+        return (_logLevel >= WarningLog);
+    case QtCriticalMsg:
+        return (_logLevel >= CriticalLog);
+    case QtFatalMsg:
+        return (_logLevel >= FatalLog);
+    }
+
+    return false;
 }
 
 /*!

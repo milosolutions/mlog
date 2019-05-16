@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (C) 2017 Milo Solutions
+Copyright (C) 2019 Milo Solutions
 Contact: https://www.milosolutions.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,13 +21,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-
 #pragma once
 
 #include <QString>
-#include <QFile>
-#include <QLoggingCategory>
 #include <QMutex>
+#include <QFile>
+#include <QStandardPaths>
+#include <QLoggingCategory>
 #include <QDir>
 
 Q_DECLARE_LOGGING_CATEGORY(core)
@@ -37,12 +37,24 @@ class QMessageLogContext;
 class MLog
 {
 public:
+    enum LogLevel {
+        NoLog,
+        FatalLog,
+        CriticalLog,
+        WarningLog,
+        InfoLog,
+        DebugLog
+    };
+
     enum class RotationType{
         Consequent, // current -> previous -> previous-1 ...
         DateTime // <appName>-<datetime>.log
     };
+    
     static MLog *instance();
-    void enableLogToFile(const QString &appName);
+    void enableLogToFile(const QString &appName,
+                         const QString &directory = QStandardPaths::writableLocation(
+                             QStandardPaths::DocumentsLocation));
     void disableLogToFile();
 
     void setLogRotation(RotationType type, int maxLogs);
@@ -53,6 +65,9 @@ public:
     QString previousLogPath() const;
     QString currentLogPath() const;
 
+    void setLogLevel(const LogLevel level);
+    LogLevel logLevel() const;
+
 private:
     Q_DISABLE_COPY(MLog)
     explicit MLog();
@@ -61,23 +76,24 @@ private:
                                const QMessageLogContext &context,
                                const QString &message);
     void write(const QString &message);
+    bool isMessageAllowed(const QtMsgType qtLevel) const;
+    void rotateLogFiles(const QString& appName);
+    QString findPreviousLogPath(const QString &logFileDir, const QString &appName);
+    void removeLastLog(const QString &appName, const QDir &logsDir);
 
-    static MLog *_instance;
+    bool _logToFile = false;
+    bool _logToConsole = true;
     QFile _logFile;
     QString _previousLogPath;
     QString _currentLogPath;
-    static bool _logToFile;
-    static bool _logToConsole;
     QMutex _mutex;
-
+    LogLevel _logLevel = DebugLog;
     int _maxLogs = 2;
     RotationType _rotationType = RotationType::Consequent;
     QString _dateTimeFormat = "yyyy-MM-dd_HH-mm-ss";
     QString _fileExt = ".log";
 
-    void rotateLogFiles(const QString& appName);
-    QString findPreviousLogPath(const QString &logFileDir, const QString &appName);
-    void removeLastLog(const QString &appName, const QDir &logsDir);
+    static MLog *_instance;
 };
 
 MLog *logger();
