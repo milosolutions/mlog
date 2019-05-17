@@ -65,7 +65,7 @@ Q_LOGGING_CATEGORY(coreLogger, "core.logger")
  * using qDebug and friends is enough.
  */
 
-MLog *MLog::_instance = nullptr;
+MLog *MLog::m_instance = nullptr;
 
 /*!
  * Installs Qt message handler. Sets up the default message pattern.
@@ -100,11 +100,11 @@ MLog::~MLog()
  */
 MLog *MLog::instance()
 {
-    if (!_instance) {
-        _instance = new MLog();
+    if (!m_instance) {
+        m_instance = new MLog();
     }
 
-    return _instance;
+    return m_instance;
 }
 
 /*!
@@ -139,25 +139,25 @@ void MLog::enableLogToFile(const QString &appName, const QString &directory)
         }
     }
 
-    _previousLogPath = findPreviousLogPath(directory, appName);
-    if (_rotationType == MLog::RotationType::Consequent) {
-        _currentLogPath = directory + '/' + appName + "-current" + _fileExt;
+    m_previousLogPath = findPreviousLogPath(directory, appName);
+    if (m_rotationType == MLog::RotationType::Consequent) {
+        m_currentLogPath = directory + '/' + appName + "-current" + m_fileExt;
     }
-    else if (_rotationType == MLog::RotationType::DateTime) {
-        const auto currentDate = QDateTime::currentDateTime().toString(_dateTimeFormat);
-        _currentLogPath = directory + '/' + appName + "-" + currentDate + _fileExt;
+    else if (m_rotationType == MLog::RotationType::DateTime) {
+        const auto currentDate = QDateTime::currentDateTime().toString(m_dateTimeFormat);
+        m_currentLogPath = directory + '/' + appName + "-" + currentDate + m_fileExt;
     }
 
     rotateLogFiles(appName);
 
     // Open appName-current.log and write init message
-    _logFile.setFileName(_currentLogPath);
-    if (!_logFile.open(QFile::WriteOnly | QFile::Text)) {
+    m_logFile.setFileName(m_currentLogPath);
+    if (!m_logFile.open(QFile::WriteOnly | QFile::Text)) {
         qCCritical(coreLogger) << "Could not open log file for writing!";
         QCoreApplication::instance()->exit(2);
         return;
     } else {
-      _logToFile = true;
+      m_logToFile = true;
     }
 }
 
@@ -167,8 +167,8 @@ void MLog::enableLogToFile(const QString &appName, const QString &directory)
  */
 void MLog::disableLogToFile()
 {
-    _logFile.close();
-    _logToFile = false;
+    m_logFile.close();
+    m_logToFile = false;
 }
 
 /*!
@@ -178,8 +178,8 @@ void MLog::disableLogToFile()
  */
 void MLog::setLogRotation(MLog::RotationType type, int maxLogs)
 {
-    _rotationType = type;
-    _maxLogs = maxLogs;
+    m_rotationType = type;
+    m_maxLogs = maxLogs;
 }
 
 /*!
@@ -188,7 +188,7 @@ void MLog::setLogRotation(MLog::RotationType type, int maxLogs)
  */
 void MLog::enableLogToConsole()
 {
-    _logToConsole = true;
+    m_logToConsole = true;
 }
 
 /*!
@@ -197,7 +197,7 @@ void MLog::enableLogToConsole()
  */
 void MLog::disableLogToConsole()
 {
-    _logToConsole = false;
+    m_logToConsole = false;
 }
 
 /*!
@@ -209,7 +209,7 @@ void MLog::disableLogToConsole()
  */
 QString MLog::previousLogPath() const
 {
-    return _previousLogPath;
+    return m_previousLogPath;
 }
 
 /*!
@@ -221,7 +221,7 @@ QString MLog::previousLogPath() const
  */
 QString MLog::currentLogPath() const
 {
-    return _currentLogPath;
+    return m_currentLogPath;
 }
 
 /*!
@@ -234,7 +234,7 @@ QString MLog::currentLogPath() const
  */
 void MLog::setLogLevel(const MLog::LogLevel level)
 {
-    _logLevel = level;
+    m_logLevel = level;
 }
 
 /*!
@@ -244,7 +244,7 @@ void MLog::setLogLevel(const MLog::LogLevel level)
  */
 MLog::LogLevel MLog::logLevel() const
 {
-    return _logLevel;
+    return m_logLevel;
 }
 
 /*!
@@ -267,10 +267,10 @@ void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
         return;
 
     const QString formatted(qFormatLogMessage(type, context, message));
-    if (log->_logToFile)
+    if (log->m_logToFile)
       log->write(formatted + "\n");
 
-    if (log->_logToConsole == false)
+    if (log->m_logToConsole == false)
       return;
 
 #ifdef ANDROID
@@ -296,9 +296,9 @@ void MLog::messageHandler(QtMsgType type, const QMessageLogContext &context,
  */
 void MLog::write(const QString &message)
 {
-    QMutexLocker locker(&_mutex);
-    if (_logFile.isOpen() && _logFile.isWritable()) {
-        QTextStream logStream(&_logFile);
+    QMutexLocker locker(&m_mutex);
+    if (m_logFile.isOpen() && m_logFile.isWritable()) {
+        QTextStream logStream(&m_logFile);
         logStream.setCodec("UTF-8");
         logStream << message;
     }
@@ -312,20 +312,20 @@ void MLog::write(const QString &message)
  */
 bool MLog::isMessageAllowed(const QtMsgType qtLevel) const
 {
-    if (_logLevel == NoLog)
+    if (m_logLevel == NoLog)
         return false;
 
     switch (qtLevel) {
     case QtDebugMsg:
-        return (_logLevel >= DebugLog);
+        return (m_logLevel >= DebugLog);
     case QtInfoMsg:
-        return (_logLevel >= InfoLog);
+        return (m_logLevel >= InfoLog);
     case QtWarningMsg:
-        return (_logLevel >= WarningLog);
+        return (m_logLevel >= WarningLog);
     case QtCriticalMsg:
-        return (_logLevel >= CriticalLog);
+        return (m_logLevel >= CriticalLog);
     case QtFatalMsg:
-        return (_logLevel >= FatalLog);
+        return (m_logLevel >= FatalLog);
     }
 
     return false;
@@ -353,12 +353,12 @@ void MLog::rotateLogFiles(const QString &appName)
     const QString logFilePath(QStandardPaths::writableLocation(
                                   QStandardPaths::DocumentsLocation));
     const QDir logsDir(logFilePath);
-    const QStringList logFilter(appName + "-*" + _fileExt);
+    const QStringList logFilter(appName + "-*" + m_fileExt);
     const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
 
-    if (_rotationType == MLog::RotationType::Consequent) {
+    if (m_rotationType == MLog::RotationType::Consequent) {
         const QRegularExpression expr("("+appName+"-previous-)([1-9][0-9]*)"
-                                      + _fileExt);
+                                      + m_fileExt);
 
         // replace names for all previous files
         for(const auto &file : qAsConst(files)) {
@@ -368,7 +368,7 @@ void MLog::rotateLogFiles(const QString &appName)
                 int index = match.captured(2).toInt();
                 ++index;
 
-                QString newFilePath = prefix + QString::number(index) + _fileExt;
+                QString newFilePath = prefix + QString::number(index) + m_fileExt;
                 const auto oldFilePath = logsDir.absoluteFilePath(file);
                 newFilePath = logsDir.absoluteFilePath(newFilePath);
 
@@ -376,15 +376,15 @@ void MLog::rotateLogFiles(const QString &appName)
             }
         }
 
-        const QString newPrev = logFilePath + '/' + appName + "-previous-1" + _fileExt;
-        QFile::rename(_previousLogPath, newPrev);
+        const QString newPrev = logFilePath + '/' + appName + "-previous-1" + m_fileExt;
+        QFile::rename(m_previousLogPath, newPrev);
     }
 
-    if (files.size()+1 > _maxLogs)
+    if (files.size()+1 > m_maxLogs)
         removeLastLog(appName, logsDir);
 
-    if (QFileInfo(_currentLogPath).exists())
-        QFile::rename(_currentLogPath, _previousLogPath);
+    if (QFileInfo(m_currentLogPath).exists())
+        QFile::rename(m_currentLogPath, m_previousLogPath);
 }
 
 /*!
@@ -392,15 +392,15 @@ void MLog::rotateLogFiles(const QString &appName)
  */
 QString MLog::findPreviousLogPath(const QString &logFileDir, const QString &appName)
 {
-    if (_rotationType == MLog::RotationType::Consequent) {
-        return logFileDir + '/' + appName + "-previous" + _fileExt;
-    } else if (_rotationType == MLog::RotationType::DateTime) {
+    if (m_rotationType == MLog::RotationType::Consequent) {
+        return logFileDir + '/' + appName + "-previous" + m_fileExt;
+    } else if (m_rotationType == MLog::RotationType::DateTime) {
         const QDir logsDir(logFileDir);
-        const QStringList logFilter(appName + "-*" + _fileExt);
+        const QStringList logFilter(appName + "-*" + m_fileExt);
         const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
         const QRegularExpression expr(
             "(" + appName + "-)(\\d\\d\\d\\d-\\d\\d-\\d\\d_\\d\\d-\\d\\d-\\d\\d)"
-            + _fileExt);
+            + m_fileExt);
 
         for(const auto &file : qAsConst(files)) {
             const auto match = expr.match(file);
@@ -416,14 +416,14 @@ QString MLog::findPreviousLogPath(const QString &logFileDir, const QString &appN
  */
 void MLog::removeLastLog(const QString &appName, const QDir &logsDir)
 {
-    const QStringList logFilter(appName + "-*" + _fileExt);
+    const QStringList logFilter(appName + "-*" + m_fileExt);
     const auto files = logsDir.entryList(logFilter, QDir::Files, QDir::Reversed);
     const auto logFilePath = logsDir.absolutePath();
     QString lastLog;
 
-    if (_rotationType == MLog::RotationType::Consequent) {
+    if (m_rotationType == MLog::RotationType::Consequent) {
         const QRegularExpression expr("(" + appName + "-previous-)([1-9][0-9]*)"
-                                      + _fileExt);
+                                      + m_fileExt);
         int max = 0;
 
         for(const auto &file : qAsConst(files)) {
@@ -437,17 +437,17 @@ void MLog::removeLastLog(const QString &appName, const QDir &logsDir)
                 }
             }
         }
-    } else if (_rotationType == MLog::RotationType::DateTime) {
+    } else if (m_rotationType == MLog::RotationType::DateTime) {
         const QRegularExpression expr("(" + appName + "-)"
                       "(\\d\\d\\d\\d-\\d\\d-\\d\\d_\\d\\d-\\d\\d-\\d\\d)"
-                                + _fileExt);
+                                + m_fileExt);
         QDateTime oldest = QDateTime::currentDateTime();
 
         for(const auto &file : qAsConst(files)) {
             const auto match = expr.match(file);
             if (match.hasMatch()) {
                 const auto index = QDateTime::fromString(
-                            match.captured(2), _dateTimeFormat);
+                            match.captured(2), m_dateTimeFormat);
 
                 if (index < oldest) {
                     oldest = index;

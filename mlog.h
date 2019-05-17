@@ -92,19 +92,19 @@ private:
     QString findPreviousLogPath(const QString &logFileDir, const QString &appName);
     void removeLastLog(const QString &appName, const QDir &logsDir);
 
-    bool _logToFile = false;
-    bool _logToConsole = true;
-    QFile _logFile;
-    QString _previousLogPath;
-    QString _currentLogPath;
-    QMutex _mutex;
-    LogLevel _logLevel = DebugLog;
-    RotationType _rotationType = RotationType::Consequent;
-    int _maxLogs = 2;
-    const QString _dateTimeFormat = QStringLiteral("yyyy-MM-dd_HH-mm-ss");
-    const QString _fileExt = QStringLiteral(".log");
+    bool m_logToFile = false;
+    bool m_logToConsole = true;
+    QFile m_logFile;
+    QString m_previousLogPath;
+    QString m_currentLogPath;
+    QMutex m_mutex;
+    LogLevel m_logLevel = DebugLog;
+    RotationType m_rotationType = RotationType::Consequent;
+    int m_maxLogs = 2;
+    const QString m_dateTimeFormat = QStringLiteral("yyyy-MM-dd_HH-mm-ss");
+    const QString m_fileExt = QStringLiteral(".log");
 
-    static MLog *_instance;
+    static MLog *m_instance;
 };
 
 MLog *logger();
