@@ -13,15 +13,15 @@ MLog is the reference logger class for Qt projects.
 
 MLog is intended to be used as a part of a main project. It should be enough
 to add:
-```
-include(mlog.pri)
-```
+
+    include(mlog.pri)
+
 in to the project \*.pro file.
 
 After activating logging to file:
-```
-logger()->enableLogToFile("Test log");
-```
+
+    logger()->enableLogToFile("Test log");
+
 there is no need to include MLog in files.
 All qDebug, qInfo(), etc will be logged automaticaly to file.
 
