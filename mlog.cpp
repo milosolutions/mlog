@@ -65,7 +65,6 @@ Q_LOGGING_CATEGORY(coreLogger, "core.logger")
  * using qDebug and friends is enough.
  */
 
-MLog *MLog::m_instance = nullptr;
 
 /*!
  * Installs Qt message handler. Sets up the default message pattern.
@@ -100,11 +99,8 @@ MLog::~MLog()
  */
 MLog *MLog::instance()
 {
-    if (!m_instance) {
-        m_instance = new MLog();
-    }
-
-    return m_instance;
+    static MLog sInstance;
+    return &sInstance;
 }
 
 /*!

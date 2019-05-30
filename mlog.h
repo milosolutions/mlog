@@ -103,8 +103,6 @@ private:
     int m_maxLogs = 2;
     const QString m_dateTimeFormat = QStringLiteral("yyyy-MM-dd_HH-mm-ss");
     const QString m_fileExt = QStringLiteral(".log");
-
-    static MLog *m_instance;
 };
 
 MLog *logger();
