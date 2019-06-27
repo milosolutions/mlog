@@ -5,6 +5,8 @@ MLog
 
 [Source code](https://github.com/milosolutions/mlog)
 
+\tableofcontents
+
 # Description
 
 MLog is the reference logger class for Qt projects.
