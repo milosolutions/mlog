@@ -1,5 +1,4 @@
-MLog
-===
+# MLog
 
 [Online documentation](https://docs.milosolutions.com/milo-code-db/mlog)
 
@@ -30,6 +29,7 @@ All qDebug, qInfo(), etc will be logged automaticaly to file.
 # Features
 
 Main features:
+
 1. Supports writing log messages to a file
 2. Seamlessly integrates with qDebug(), qCDebug(), qInfo() etc.
 3. Supports Qt categorised logging
