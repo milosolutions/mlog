@@ -13,7 +13,9 @@ target_include_directories(tst_mlog PUBLIC
 )
 
 ## Mark all warnings as errors
-target_compile_options(tst_mlog PRIVATE -Werror -fPIC)
+if (NOT WIN32)
+  target_compile_options(tst_mlog PRIVATE -Werror -fPIC)
+endif(WIN32)
 
 ## Enable LTCG (link time optimization)
 #option (ltcg "Enable LTCG (link time optimization)" OFF)
