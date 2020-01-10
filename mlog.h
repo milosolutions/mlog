@@ -79,6 +79,9 @@ public:
     void setLogLevel(const LogLevel level);
     LogLevel logLevel() const;
 
+
+    void writeRaw(QtMsgType type, const QString &message);
+
 private:
     Q_DISABLE_COPY(MLog)
     explicit MLog();
@@ -105,4 +108,7 @@ private:
     const QString m_fileExt = QStringLiteral(".log");
 };
 
+/*!
+ * Convenience helper method returning the logger instance.
+ */
 MLog *logger();

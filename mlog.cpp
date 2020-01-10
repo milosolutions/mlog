@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (C) 2017 Milo Solutions
+Copyright (C) 2019 Milo Solutions
 Contact: https://www.milosolutions.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -241,6 +241,23 @@ void MLog::setLogLevel(const MLog::LogLevel level)
 MLog::LogLevel MLog::logLevel() const
 {
     return m_logLevel;
+}
+
+/*!
+    * Writes log \a message exactly as given - without any processing and
+    * without adding log category string.
+    *
+    * \warning Newline character is not appended to the \a message!
+*/
+void MLog::writeRaw(QtMsgType type, const QString &message)
+{
+    if (m_logToFile)
+        logger()->write(message);
+
+    if (logger()->isMessageAllowed(type)) {
+        fprintf(stderr, "%s", qPrintable(message));
+        fflush(stderr);
+    }
 }
 
 /*!

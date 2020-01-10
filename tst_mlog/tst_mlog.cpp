@@ -48,7 +48,7 @@ private:
 void TestMLog::initTestCase()
 {
     Q_ASSERT(MLog::instance());
-    QCoreApplication::setApplicationName("MLog Test");
+    QCoreApplication::setApplicationName("MLogTest");
     QCoreApplication::setOrganizationName("Milo");
 }
 
@@ -59,7 +59,6 @@ void TestMLog::cleanupTestCase()
 
 void TestMLog::clean()
 {
-    logger()->enableLogToConsole();
     logger()->disableLogToFile();
     QFile::remove(logger()->currentLogPath());
     QFile::remove(logger()->previousLogPath());
@@ -67,20 +66,22 @@ void TestMLog::clean()
 
 void TestMLog::testEnableLogToFile()
 {
-    logger()->enableLogToFile(QCoreApplication::applicationName());
+    logger()->enableLogToFile(QCoreApplication::applicationName(),
+                              QCoreApplication::applicationDirPath());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
     QVERIFY(!QFile::exists(logger()->previousLogPath()));
     clean();
-    logger()->enableLogToFile("Test log");
+    logger()->enableLogToFile("Test log",
+                              QCoreApplication::applicationDirPath());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
     QVERIFY(logger()->currentLogPath() != logger()->previousLogPath());
     QFile logFile(logger()->currentLogPath());
-    quint64 fileSize1 = logFile.size();
-    qDebug() << "Test log file size: " << fileSize1;
-    quint64 fileSize2 = logFile.size();
-    qDebug() << "Test log file size: " << fileSize2;
+    qint64 fileSize1 = logFile.size();
+    qInfo() << "Empty log file size: " << fileSize1;
+    qint64 fileSize2 = logFile.size();
+    qInfo() << "Test log file size: " << fileSize2;
     QVERIFY(!(fileSize1 == fileSize2));
-    quint64 fileSize3 = logFile.size();
+    qint64 fileSize3 = logFile.size();
     QVERIFY(!(fileSize3 == fileSize2));
     
 }
@@ -90,33 +91,34 @@ void TestMLog::testDisableLogToFile()
     logger()->disableLogToFile();
     QVERIFY(QFile::exists(logger()->currentLogPath()));
     QFile logFile(logger()->currentLogPath());
-    quint64 fileSize1 = logFile.size();
-    qDebug() << "Test log file size: " << fileSize1;
-    quint64 fileSize2 = logFile.size();
+    qint64 fileSize1 = logFile.size();
+    qInfo() << "Test log file size: " << fileSize1;
+    qint64 fileSize2 = logFile.size();
     clean();
-    logger()->enableLogToFile(QCoreApplication::applicationName());
-    qDebug() << "Test log file size: " << fileSize2;
+    logger()->enableLogToFile(QCoreApplication::applicationName(),
+                              QCoreApplication::applicationDirPath());
+    qInfo() << "Test log file size: " << fileSize2;
     QCOMPARE(fileSize1, fileSize2);
     clean();
 }
 
 void TestMLog::testLogToConsole()
 {
-    logger()->enableLogToConsole();
-    logger()->enableLogToFile(QCoreApplication::applicationName());
+    logger()->enableLogToFile(QCoreApplication::applicationName(),
+                              QCoreApplication::applicationDirPath());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
-    qDebug() << "Test debug text";
-    qDebug() << "Test debug text2";
+    qInfo() << "Test debug text";
+    qInfo() << "Test debug text2";
     QFile logFile(logger()->currentLogPath());
-    quint64 fileSize1 = logFile.size();
+    qint64 fileSize1 = logFile.size();
 
-    logger()->enableLogToFile(QCoreApplication::applicationName());
-    logger()->disableLogToConsole();
+    logger()->enableLogToFile(QCoreApplication::applicationName(),
+                              QCoreApplication::applicationDirPath());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
-    qDebug() << "Test debug text";
-    qDebug() << "Test debug text2";
+    qInfo() << "Test debug text";
+    qInfo() << "Test debug text2";
     QFile logFile2(logger()->currentLogPath());
-    quint64 fileSize2 = logFile2.size();
+    qint64 fileSize2 = logFile2.size();
 
     QVERIFY(fileSize1 == fileSize2);
 
@@ -125,17 +127,18 @@ void TestMLog::testLogToConsole()
 
 void TestMLog::testInThread()
 {
-    logger()->enableLogToFile("Thread log");
+    logger()->enableLogToFile("Thread log",
+                              QCoreApplication::applicationDirPath());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
-    qDebug() << "Test debug text";
+    qInfo() << "Test debug text";
     QFile logFile(logger()->currentLogPath());
-    quint64 fileSize1 = logFile.size();
+    qint64 fileSize1 = logFile.size();
 
     LoggingThread thread;
     thread.start();
     thread.wait();
 
-    quint64 fileSize2 = logFile.size();
+    qint64 fileSize2 = logFile.size();
 
     QVERIFY(fileSize2 > fileSize1);
     clean();
@@ -143,7 +146,8 @@ void TestMLog::testInThread()
 
 void TestMLog::testInMultipleThreads()
 {
-    logger()->enableLogToFile("Threads log");
+    logger()->enableLogToFile("Threads log",
+                              QCoreApplication::applicationDirPath());
     QVERIFY(QFile::exists(logger()->currentLogPath()));
     QFile logFile(logger()->currentLogPath());
 
@@ -151,7 +155,7 @@ void TestMLog::testInMultipleThreads()
     thread.start();
     thread.wait();
 
-    quint64 fileSize1 = logFile.size();
+    qint64 fileSize1 = logFile.size();
 
     const int numberOfThreads = 20;
     QVector<LoggingThread*> threadVec;
@@ -168,8 +172,8 @@ void TestMLog::testInMultipleThreads()
         thread->deleteLater();
     threadVec.clear();
 
-    quint64 fileSize2 = logFile.size();
-    int logNumber = std::ceil((float)fileSize2/(float)fileSize1);
+    qint64 fileSize2 = logFile.size();
+    int logNumber = int(std::ceil(float(fileSize2)/float(fileSize1)));
 
     QVERIFY(logNumber == numberOfThreads+1);
 }
