@@ -42,12 +42,12 @@ public:
      * information.
      */
     enum LogLevel {
-        NoLog, //! No log messages will be printed
-        FatalLog, //! Only qFatal() messages will be printed
-        CriticalLog, //! Only qFatal() and qCritical() messages will be printed
-        WarningLog, //! Will print qFatal(), qCritical() and qWarning() messages
-        InfoLog, //! Will print qFatal(), qCritical(), qWarning() and qInfo() messages
-        DebugLog //! Will print all messages
+        NoLog, //!< No log messages will be printed
+        FatalLog, //!< Only qFatal() messages will be printed
+        CriticalLog, //!< Only qFatal() and qCritical() messages will be printed
+        WarningLog, //!< Will print qFatal(), qCritical() and qWarning() messages
+        InfoLog, //!< Will print qFatal(), qCritical(), qWarning() and qInfo() messages
+        DebugLog //!< Will print all messages
     };
 
     /*!
@@ -58,8 +58,8 @@ public:
      * easily compare the logs from both runs.
      */
     enum class RotationType{
-        Consequent, //! current -> previous -> previous-1 ...
-        DateTime //! <appName>-<datetime>.log
+        Consequent, //!< current -> previous -> previous-1 ...
+        DateTime //!< <appName>-<datetime>.log
     };
     
     static MLog *instance();
@@ -78,9 +78,6 @@ public:
 
     void setLogLevel(const LogLevel level);
     LogLevel logLevel() const;
-
-
-    void writeRaw(QtMsgType type, const QString &message);
 
 private:
     Q_DISABLE_COPY(MLog)
@@ -108,7 +105,4 @@ private:
     const QString m_fileExt = QStringLiteral(".log");
 };
 
-/*!
- * Convenience helper method returning the logger instance.
- */
 MLog *logger();
