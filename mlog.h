@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (C) 2019 Milo Solutions
+Copyright (C) 2020 Milo Solutions
 Contact: https://www.milosolutions.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -78,6 +78,8 @@ public:
 
     void setLogLevel(const LogLevel level);
     LogLevel logLevel() const;
+
+    void writeRaw(QtMsgType type, const QString &message);
 
 private:
     Q_DISABLE_COPY(MLog)
