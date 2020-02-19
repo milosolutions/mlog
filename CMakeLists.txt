@@ -5,7 +5,7 @@ project(mlog
   LANGUAGES CXX
 )
 
-include(../../qtbase.cmake)
+find_package(Qt5 COMPONENTS REQUIRED Core)
 
 set(SOURCES mlog.h mlog.cpp)
 
@@ -19,23 +19,8 @@ target_include_directories(mlog
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-# Mark all warnings as errors
-if (NOT WIN32)
-  target_compile_options(mlog PRIVATE -Werror -fPIC)
-endif(WIN32)
-
-# Enable LTCG (link time optimization)
-option (ltcg "Enable LTCG (link time optimization)" OFF)
-if (ltcg)
-  set_property(TARGET mlog PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif (ltcg)
-
-# Use C++ 14 standard
-target_compile_features(mlog PRIVATE cxx_std_14)
-
-# Defines
-target_compile_definitions(mlog PRIVATE QT_USE_QSTRINGBUILDER)
-
 target_link_libraries(mlog
   Qt5::Core
 )
+
+add_subdirectory(tst_mlog)
