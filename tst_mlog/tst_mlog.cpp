@@ -40,6 +40,7 @@ private slots:
     void testLogToConsole();
     void testInThread();
     void testInMultipleThreads();
+    void testCustomTypes();
 
 private:
     void clean();
@@ -83,7 +84,7 @@ void TestMLog::testEnableLogToFile()
     QVERIFY(!(fileSize1 == fileSize2));
     qint64 fileSize3 = logFile.size();
     QVERIFY(!(fileSize3 == fileSize2));
-    
+
 }
 
 void TestMLog::testDisableLogToFile()
@@ -176,6 +177,22 @@ void TestMLog::testInMultipleThreads()
     int logNumber = int(std::ceil(float(fileSize2)/float(fileSize1)));
 
     QVERIFY(logNumber == numberOfThreads+1);
+    clean();
+}
+
+void TestMLog::testCustomTypes()
+{
+    logger()->enableLogToFile(QCoreApplication::applicationName(),
+                              QCoreApplication::applicationDirPath());
+    QFile logFile(logger()->currentLogPath());
+    const qint64 emptyFile = logFile.size();
+    std::string string = "Test string!";
+    qInfo() << string;
+    const qint64 stringFile = logFile.size();
+    QVERIFY(stringFile > emptyFile);
+    qDebug() << stringFile << string.length();
+    //QVERIFY(qint64(string.length()) == stringFile);
+    clean();
 }
 
 QTEST_MAIN(TestMLog)

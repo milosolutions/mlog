@@ -1,3 +1,8 @@
+if (POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif ()
+
+cmake_minimum_required(VERSION 3.5)
 
 project(mlog
   VERSION 0.0.1
@@ -7,7 +12,7 @@ project(mlog
 
 find_package(Qt5 COMPONENTS REQUIRED Core)
 
-set(SOURCES mlog.h mlog.cpp)
+set(SOURCES mlog.h mlog.cpp logtypes.h logtypes.cpp)
 
 set(OTHER_FILES README.md AUTHORS.md mlog.doxyfile)
 

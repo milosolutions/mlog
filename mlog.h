@@ -30,6 +30,8 @@ SOFTWARE.
 #include <QLoggingCategory>
 #include <QDir>
 
+#include "logtypes.h"
+
 Q_DECLARE_LOGGING_CATEGORY(core)
 
 class QMessageLogContext;
@@ -61,7 +63,7 @@ public:
         Consequent, //!< current -> previous -> previous-1 ...
         DateTime //!< <appName>-<datetime>.log
     };
-    
+
     static MLog *instance();
     void enableLogToFile(const QString &appName,
                          const QString &directory = QStandardPaths::writableLocation(
