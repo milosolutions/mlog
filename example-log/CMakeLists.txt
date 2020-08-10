@@ -1,4 +1,4 @@
-find_package(Qt5 COMPONENTS REQUIRED Core Test)
+find_package(Qt5 COMPONENTS REQUIRED Core)
 
 set(CMAKE_AUTOMOC ON)
 
