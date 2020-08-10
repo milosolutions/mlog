@@ -30,7 +30,7 @@ SOFTWARE.
 #include <QLoggingCategory>
 #include <QDir>
 
-#include "logtypes.h"
+#include "mlogtypes.h"
 
 Q_DECLARE_LOGGING_CATEGORY(core)
 

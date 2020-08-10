@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "exampleclass.h"
 #include "mlog.h"
+#include "mlogtypes.h"
 
 Q_LOGGING_CATEGORY(coreMain, "core.main")
 
@@ -56,6 +57,10 @@ int main(int argc, char *argv[])
     qCCritical(coreMain) << "This is a critical message!";
     qCDebug(coreMain) << "This is a debug message, it won't be printed because"
                       << "log level is set to MLog::InfoLog";
+
+    // Thanks to mlogtypes.h, we can use std::string in debug statements.
+    std::string standardString = "Hello, std lib!";
+    qCDebug(coreMain) << standardString;
 
     // Class test
     ExampleClass cls;

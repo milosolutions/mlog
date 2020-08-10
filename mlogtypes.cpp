@@ -1,4 +1,4 @@
-#include "logtypes.h"
+#include "mlogtypes.h"
 
 QDebug operator<<(QDebug debug, const std::string &string)
 {
