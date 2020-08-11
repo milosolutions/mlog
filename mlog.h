@@ -110,3 +110,31 @@ private:
 };
 
 MLog *logger();
+
+#define redLogColor "\033[1;31m"
+#define greenLogColor "\033[1;32m"
+#define blueLogColor "\033[1;34m"
+#define cyanLogColor "\033[1;36m"
+#define endLogColor "\033[0m"
+
+// TODO: add support for categorized logging, too!
+
+#define redDebug(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug() << redLogColor << __VA_ARGS__ << endLogColor
+#define redInfo(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info() << redLogColor << __VA_ARGS__ << endLogColor
+#define redWarning(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning() << redLogColor << __VA_ARGS__ << endLogColor
+#define redCritical(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << redLogColor << __VA_ARGS__ << endLogColor
+
+#define greenDebug(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug() << greenLogColor << __VA_ARGS__ << endLogColor
+#define greenInfo(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info() << greenLogColor << __VA_ARGS__ << endLogColor
+#define greenWarning(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning() << greenLogColor << __VA_ARGS__ << endLogColor
+#define greenCritical(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << greenLogColor << __VA_ARGS__ << endLogColor
+
+#define blueDebug(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug() << blueLogColor << __VA_ARGS__ << endLogColor
+#define blueInfo(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info() << blueLogColor << __VA_ARGS__ << endLogColor
+#define blueWarning(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning() << blueLogColor << __VA_ARGS__ << endLogColor
+#define blueCritical(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << blueLogColor << __VA_ARGS__ << endLogColor
+
+#define cyanDebug(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug() << cyanLogColor << __VA_ARGS__ << endLogColor
+#define cyanInfo(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info() << cyanLogColor << __VA_ARGS__ << endLogColor
+#define cyanWarning(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning() << cyanLogColor << __VA_ARGS__ << endLogColor
+#define cyanCritical(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << cyanLogColor << __VA_ARGS__ << endLogColor

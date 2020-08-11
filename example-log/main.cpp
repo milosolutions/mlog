@@ -59,8 +59,14 @@ int main(int argc, char *argv[])
                       << "log level is set to MLog::InfoLog";
 
     // Thanks to mlogtypes.h, we can use std::string in debug statements.
-    std::string standardString = "Hello, std lib!";
-    qCDebug(coreMain) << standardString;
+    const std::string standardString = "Hello, std lib!";
+    qCInfo(coreMain) << standardString;
+
+    cyanInfo("INFO: It should be cyan!" << 123);
+    greenInfo("INFO: It should be green!" << 456);
+    blueWarning("WARNING: It should be blue!" << 789 << standardString);
+    redCritical("CRITICAL: It should be red!" << 10);
+    qCInfo(coreMain) << "This should use default color again";
 
     // Class test
     ExampleClass cls;
