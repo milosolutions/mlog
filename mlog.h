@@ -123,6 +123,7 @@ MLog *logger();
 #define redInfo(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info() << redLogColor << __VA_ARGS__ << endLogColor
 #define redWarning(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning() << redLogColor << __VA_ARGS__ << endLogColor
 #define redCritical(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << redLogColor << __VA_ARGS__ << endLogColor
+#define redCCritical(category,...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << redLogColor << __VA_ARGS__ << endLogColor
 
 #define greenDebug(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug() << greenLogColor << __VA_ARGS__ << endLogColor
 #define greenInfo(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info() << greenLogColor << __VA_ARGS__ << endLogColor
@@ -138,3 +139,109 @@ MLog *logger();
 #define cyanInfo(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info() << cyanLogColor << __VA_ARGS__ << endLogColor
 #define cyanWarning(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning() << cyanLogColor << __VA_ARGS__ << endLogColor
 #define cyanCritical(...) QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << cyanLogColor << __VA_ARGS__ << endLogColor
+
+
+#include <QDebug>
+#include <QBuffer>
+
+//class RedLog;
+
+//class MMessageLogger
+//{
+//    friend class QMessageLogContext;
+//    friend class QDebug;
+//    friend class RedLog;
+
+//public:
+//    MMessageLogger(const char *file, int line, const char *function)
+//        : context(file, line, function, "default") {}
+
+//    RedLog info() const;
+
+//protected:
+//     QMessageLogContext context;
+//};
+
+class RedLog : public QDebug
+{
+public:
+    RedLog(const QDebug &other) : QDebug(other) {
+        operator<<(redLogColor);
+    }
+
+    ~RedLog() {
+        operator<<(endLogColor);
+    }
+};
+
+class ColorLog
+{
+public:
+    enum class Color {
+        Red,
+        Green,
+        Blue,
+        Cyan
+    };
+
+    ColorLog(const QtMsgType type, const Color color,
+             const char *fileName, int lineNumber, const char *functionName,
+             const char *categoryName = "default")
+        : m_type(type), m_color(color),
+          m_context(fileName, lineNumber, functionName, categoryName)
+    {
+        m_buffer.open(QBuffer::ReadWrite);
+        m_debug = new QDebug(&m_buffer);
+        *m_debug << colorBegin(m_color);
+    }
+
+    ColorLog(const QtMsgType type, const Color color)
+        : m_type(type), m_color(color)
+    {
+        m_buffer.open(QBuffer::ReadWrite);
+        m_debug = new QDebug(&m_buffer);
+        *m_debug << colorBegin(m_color);
+    }
+
+    ~ColorLog() {
+        *m_debug << colorEnd();
+        delete m_debug;
+        qDebug() << "SEPARATOR!";
+        qt_message_output(m_type, m_context, m_buffer.data());
+        qDebug() << "EOF!";
+    }
+
+    const char * colorBegin(const Color color) const {
+        switch (color) {
+        case Color::Red:
+            return redLogColor;
+        case Color::Blue:
+            return blueLogColor;
+        case Color::Cyan:
+            return cyanLogColor;
+        case Color::Green:
+            return greenLogColor;
+        }
+
+        return "";
+    }
+
+    const char * colorEnd() const {
+        return endLogColor;
+    }
+
+    QDebug &debugObject() { return *m_debug; }
+
+private:
+    QBuffer m_buffer;
+    QtMsgType m_type = QtMsgType::QtDebugMsg;
+    Color m_color = Color::Red;
+    QMessageLogContext m_context;
+    QDebug *m_debug = nullptr;
+};
+
+//#define testInfo ColorLog(QtInfoMsg, ColorLog::Color::Red, QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debugObject
+
+#define testInfo() RedLog(QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info())
+
+//#define testCrit QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical() << redLogColor << __VA_ARGS__ << endLogColor

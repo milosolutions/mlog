@@ -1,5 +1,5 @@
 /*******************************************************************************
-Copyright (C) 2019 Milo Solutions
+Copyright (C) 2020 Milo Solutions
 Contact: https://www.milosolutions.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,7 +31,7 @@ SOFTWARE.
 #include "mlogtypes.h"
 
 Q_LOGGING_CATEGORY(coreMain, "core.main")
-
+#include <QBuffer>
 //! Example use of MiloLog class
 int main(int argc, char *argv[])
 {
@@ -66,6 +66,14 @@ int main(int argc, char *argv[])
     greenInfo("INFO: It should be green!" << 456);
     blueWarning("WARNING: It should be blue!" << 789 << standardString);
     redCritical("CRITICAL: It should be red!" << 10);
+    redCCritical(coreMain, "CRITICAL: It should be red!" << 11);
+
+    //RedDebug red;
+    //red << "Woah!" << 123;
+    //qInfo() << "HM!" << buf.isOpen() << buf.data();
+
+    testInfo() << "Woah!" << 123;
+
     qCInfo(coreMain) << "This should use default color again";
 
     // Class test
