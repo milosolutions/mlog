@@ -49,6 +49,9 @@ the previous log file
 5. Lightweight
 6. Convenient, minimalistic API
 7. Adds support for logging extra types in qDebug(), like std::string
+8. Supports colorful log output through mInfo, mCInfo, mDebug, etc.
+
+![Colorful logs](doc/img/color_log.png "Standard and color log lines")
 
 For example usage, see example-log/main.cpp file. This project is fully
 docummented - please check doxygen docs or see the comments directly in the
