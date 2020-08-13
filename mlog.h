@@ -32,6 +32,7 @@ SOFTWARE.
 #include <QDebug>
 
 #include "mlogtypes.h"
+#include "mcolorlog.h"
 
 Q_DECLARE_LOGGING_CATEGORY(core)
 
@@ -63,13 +64,6 @@ public:
     enum class RotationType{
         Consequent, //!< current -> previous -> previous-1 ...
         DateTime //!< <appName>-<datetime>.log
-    };
-
-    enum class Color {
-        Red,
-        Green,
-        Blue,
-        Cyan
     };
 
     static MLog *instance();
@@ -118,51 +112,3 @@ private:
 };
 
 MLog *logger();
-
-#define redLogColor "\033[1;31m"
-#define greenLogColor "\033[1;32m"
-#define blueLogColor "\033[1;34m"
-#define cyanLogColor "\033[1;36m"
-#define endLogColor "\033[0m"
-
-class ColorLog : public QDebug
-{
-public:
-
-    ColorLog(const  MLog::Color color, const QDebug &other)
-        : QDebug(other), m_color(color)
-    {
-        operator<<(colorBegin(m_color));
-    }
-
-    ~ColorLog() {
-        operator<<(colorEnd());
-    }
-
-    const char *colorBegin(const  MLog::Color color) const {
-        switch (color) {
-        case MLog::Color::Red:
-            return redLogColor;
-        case MLog::Color::Blue:
-            return blueLogColor;
-        case MLog::Color::Cyan:
-            return cyanLogColor;
-        case MLog::Color::Green:
-            return greenLogColor;
-        }
-
-        return "";
-    }
-
-    const char *colorEnd() const {
-        return endLogColor;
-    }
-
-private:
-    MLog::Color m_color = MLog::Color::Red;
-};
-
-
-//#define mlog(color, ...) ColorLog(color, QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC __VA_OPT__(,) __VA_ARGS__).info())
-
-#define mInfo(color) ColorLog(color, QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).info())

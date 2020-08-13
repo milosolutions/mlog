@@ -12,7 +12,7 @@ project(mlog
 
 find_package(Qt5 COMPONENTS REQUIRED Core)
 
-set(SOURCES mlog.h mlog.cpp mlogtypes.h mlogtypes.cpp)
+set(SOURCES mlog.h mlog.cpp mlogtypes.h mlogtypes.cpp mcolorlog.h)
 
 set(OTHER_FILES README.md AUTHORS.md mlog.doxyfile)
 

@@ -62,20 +62,17 @@ int main(int argc, char *argv[])
     const std::string standardString = "Hello, std lib!";
     qCInfo(coreMain) << standardString;
 
-//    cyanInfo("INFO: It should be cyan!" << 123);
-//    greenInfo("INFO: It should be green!" << 456);
-//    blueWarning("WARNING: It should be blue!" << 789 << standardString);
-//    redCritical("CRITICAL: It should be red!" << 10);
-//    redCCritical(coreMain, "CRITICAL: It should be red!" << 11);
+    mInfo(MColorLog::Red) << "Red!" << 123;
+    mInfo(MColorLog::Cyan).nospace() << "Cyan!" << 123;
+    mInfo(MColorLog::Green) << "Green!" << 123 << standardString;
+    mInfo(MColorLog::Blue).noquote() << "Blue!" << 123;
 
-    //RedDebug red;
-    //red << "Woah!" << 123;
-    //qInfo() << "HM!" << buf.isOpen() << buf.data();
+    qCInfo(coreMain) << "This should use default color again";
 
-    mInfo(MLog::Color::Red) << "Woah!" << 123;
-    mInfo(MLog::Color::Cyan) << "Woah!" << 123;
-    mInfo(MLog::Color::Green) << "Woah!" << 123;
-    mInfo(MLog::Color::Blue) << "Woah!" << 123;
+    mCInfo(MColorLog::Red, coreMain) << "Red categtory!" << 123;
+    mCInfo(MColorLog::Cyan, coreMain).nospace() << "Cyan categtory!" << 123;
+    mCInfo(MColorLog::Green, coreMain) << "Green categtory!" << 123 << standardString;
+    mCInfo(MColorLog::Blue, coreMain).noquote() << "Blue categtory!" << 123;
 
     qCInfo(coreMain) << "This should use default color again";
 
