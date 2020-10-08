@@ -23,9 +23,19 @@ target_include_directories(mlog
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-target_link_libraries(mlog
-  Qt5::Core
-)
+if (ANDROID)
+  # From:
+  # https://stackoverflow.com/questions/40844163/android-ndkcmake-undefined-reference-to-android-log-write-when-using-log
+  find_library(log-lib log)
+  target_link_libraries(mlog
+    Qt5::Core
+    ${log-lib}
+  )
+else()
+  target_link_libraries(mlog
+    Qt5::Core
+  )
+endif()
 
 add_subdirectory(tst_mlog)
 add_subdirectory(example-log)

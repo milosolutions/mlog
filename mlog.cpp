@@ -33,7 +33,7 @@ SOFTWARE.
 #include <QDateTime>
 
 #ifdef ANDROID
-#include "android/log.h"
+#include <android/log.h>
 #endif
 
 Q_LOGGING_CATEGORY(coreLogger, "core.logger")
