@@ -1,7 +1,3 @@
-if (POLICY CMP0048)
-  cmake_policy(SET CMP0048 NEW)
-endif ()
-
 cmake_minimum_required(VERSION 3.5)
 
 project(mlog
@@ -10,7 +6,8 @@ project(mlog
   LANGUAGES CXX
 )
 
-find_package(Qt5 COMPONENTS REQUIRED Core)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 set(SOURCES mlog.h mlog.cpp mlogtypes.h mlogtypes.cpp mcolorlog.h)
 
@@ -28,12 +25,12 @@ if (ANDROID)
   # https://stackoverflow.com/questions/40844163/android-ndkcmake-undefined-reference-to-android-log-write-when-using-log
   find_library(log-lib log)
   target_link_libraries(mlog
-    Qt5::Core
+    Qt${QT_VERSION_MAJOR}::Core
     ${log-lib}
   )
 else()
   target_link_libraries(mlog
-    Qt5::Core
+    Qt${QT_VERSION_MAJOR}::Core
   )
 endif()
 

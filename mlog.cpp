@@ -312,7 +312,13 @@ void MLog::write(const QString &message)
     QMutexLocker locker(&m_mutex);
     if (m_logFile.isOpen() && m_logFile.isWritable()) {
         QTextStream logStream(&m_logFile);
+
+#if QT_VERSION >= 0x060000
+        logStream.setEncoding(QStringConverter::Utf8);
+#else
         logStream.setCodec("UTF-8");
+#endif
+
         logStream << message;
     }
 }
@@ -396,7 +402,7 @@ void MLog::rotateLogFiles(const QString &appName)
     if (files.size()+1 > m_maxLogs)
         removeLastLog(appName, logsDir);
 
-    if (QFileInfo(m_currentLogPath).exists())
+    if (QFileInfo::exists(m_currentLogPath))
         QFile::rename(m_currentLogPath, m_previousLogPath);
 }
 
